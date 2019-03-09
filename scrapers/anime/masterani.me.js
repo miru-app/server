@@ -1,3 +1,8 @@
+/*
+	RIP
+	Keeping this in case clone sites pop up
+*/
+
 const got = require('got');
 const async = require('async'); // asynchronous utils
 const hostScrapers = require('../hosts');

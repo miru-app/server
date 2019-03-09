@@ -32,7 +32,9 @@ async function getStreams(kitsuID, episodeNumber=1) {
 			scraper(details, episodeNumber)
 				.then(scrapedStreams => {
 					// Merge the returned streams with the master list
-					streams = mergeArrays(streams, scrapedStreams);
+					if (scrapedStreams) {
+						streams = mergeArrays(streams, scrapedStreams);
+					}
 					callback();
 				})
 				.catch(() => { // Silently ignore errors for now
@@ -47,7 +49,6 @@ async function getStreams(kitsuID, episodeNumber=1) {
 
 module.exports = getStreams; // Export the function
 
-/*
 // Tesing
 (async () => {
 	console.time('Scrape Time');
@@ -55,9 +56,8 @@ module.exports = getStreams; // Export the function
 	console.timeEnd('Scrape Time');
 	console.log(`Scrapers: ${Object.keys(scrapers).length}`);
 	console.log(`Total streams: ${streams.length}`);
-	console.log(JSON.stringify(streams, null, 4));
+	console.log(streams);
 })();
-*/
 
 // Combine arrays together
 function mergeArrays(...arrays) {

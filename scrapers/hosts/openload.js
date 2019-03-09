@@ -2,9 +2,9 @@
 const got = require('got');
 
 // RegEx to find the required parts
-const ENCODED_SIGNATURE_REGEX = /<p style="" id=".*">(.*)<\/p>/; // Doing this allows us to skip needing to use RegEx to find the AAEncoded JavaScript, decode it, and then use RegEx 2 more times to find this same value. This saves quite a bit of time. However this relies on a static HTML structure which may change
+const ENCODED_SIGNATURE_REGEX = /<p (?:id=".*"|style="")>(.*)<\/p>/; // Doing this allows us to skip needing to use RegEx to find the AAEncoded JavaScript, decode it, and then use RegEx 2 more times to find this same value. This saves quite a bit of time. However this relies on a static HTML structure which may change
 const SEED_1_REGEX = /\(_0x30725e,(.*)\),_1x4bfb36\)/;
-const SEED_2_REGEX = /_1x4bfb36=([^;]*)/;
+const SEED_2_REGEX = /_1x4bfb36=(.*?);/;
 
 async function scrape(url) {
 	// Get the webpage
@@ -100,8 +100,8 @@ function parse(body) {
 
 /*
 (async () => {
-	const streams = await scrape('https://openload.co/embed/M1cts6L5-WM');
-	console.log(streams);
+	const stream = await scrape('https://openload.co/embed/M1cts6L5-WM');
+	console.log(stream);
 })();
 */
 

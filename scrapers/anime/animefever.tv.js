@@ -12,9 +12,12 @@ const OPTIONS = {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	episodeNumber--;
 
+	const titleENGUS = kitsuDetails.attributes.titles.en_us;
 	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.en_jp;
-	const title = (titleJPN || titleENG);
+	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
+	const titleJPN = kitsuDetails.attributes.titles.jp;
+
+	const title = (titleENGJPN || titleENG || titleENGUS || titleJPN);
 
 	let response = await got(`${SEARCH_URL}&search=${title}`, OPTIONS);
 	const searchResults = response.body.data;

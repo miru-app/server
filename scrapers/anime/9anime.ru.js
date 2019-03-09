@@ -26,9 +26,11 @@ const OPTIONS = {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	let streams = [];
 
+	const titleENGUS = kitsuDetails.attributes.titles.en_us;
 	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.en_jp;
-	const title = (titleJPN || titleENG).toLowerCase();
+	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
+	const titleJPN = kitsuDetails.attributes.titles.jp;
+	const title = (titleENGUS || titleENG || titleENGJPN || titleJPN).toLowerCase();
 	const titleEncoded = encodeURIComponent(title);
 
 	const response = await got(`${SEARCH_URL}=${titleEncoded}`, OPTIONS);

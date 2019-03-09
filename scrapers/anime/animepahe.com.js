@@ -22,9 +22,11 @@ const OPTIONS = {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	const streams = [];
 
+	const titleENGUS = kitsuDetails.attributes.titles.en_us;
 	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.en_jp;
-	const title = (titleENG || titleJPN);
+	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
+	const titleJPN = kitsuDetails.attributes.titles.jp;
+	const title = (titleENGUS || titleENG || titleENGJPN || titleJPN);
 	const titleEncoded = encodeURIComponent(title);
 
 	let response = await got(`${SEARCH_URL_BASE}&q=${titleEncoded}`, OPTIONS);

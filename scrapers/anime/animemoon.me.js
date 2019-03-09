@@ -15,9 +15,12 @@ const WATCH_PROXY_REGEX = /watchproxy\.php\?url=(.*)/;
 async function scrape(kitsuDetails, episodeNumber=1) {
 	let streams = [];
 
+	const titleENGUS = kitsuDetails.attributes.titles.en_us;
 	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.en_jp;
-	const title = (titleJPN || titleENG).toLowerCase();
+	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
+	const titleJPN = kitsuDetails.attributes.titles.jp;
+
+	const title = (titleENGJPN || titleENG || titleENGUS || titleJPN).toLowerCase();
 	const titleEncoded = encodeURIComponent(title);
 
 	const TITLE_JPN_REGEX = new RegExp(titleJPN, 'i');

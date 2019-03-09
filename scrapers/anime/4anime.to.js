@@ -37,11 +37,7 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 		provider: '4A',
 		provider_full: '4anime',
 		file_host: '4A',
-		file: SOURCE_DATA[1],
-		dubbed: false,
-		quality: '',
-		m3u8: false,
-		subtitles_file: ''
+		file: SOURCE_DATA[1]
 	}];
 }
 
