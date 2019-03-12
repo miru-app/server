@@ -21,7 +21,7 @@ app.use('/api/*', middleware.validateSignature);
 // routes setup
 const ROUTES = {
 	API: {
-		getStreams: require('./routes/api/getStreams')
+		getStreams: require('./routes/api/getStreams'),
 	}
 };
 

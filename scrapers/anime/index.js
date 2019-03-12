@@ -49,6 +49,7 @@ async function getStreams(kitsuID, episodeNumber=1) {
 
 module.exports = getStreams; // Export the function
 
+/*
 // Tesing
 (async () => {
 	console.time('Scrape Time');
@@ -58,6 +59,7 @@ module.exports = getStreams; // Export the function
 	console.log(`Total streams: ${streams.length}`);
 	console.log(streams);
 })();
+*/
 
 // Combine arrays together
 function mergeArrays(...arrays) {

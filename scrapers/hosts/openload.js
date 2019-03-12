@@ -100,7 +100,7 @@ function parse(body) {
 
 /*
 (async () => {
-	const stream = await scrape('https://openload.co/embed/M1cts6L5-WM');
+	const stream = await scrape('https://openload.co/embed/J5-Dpu9CY8A/');
 	console.log(stream);
 })();
 */
