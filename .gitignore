@@ -60,3 +60,4 @@ typings/
 # custom
 config.json
 client.js
+scrapers/anime/9anime.ru.js

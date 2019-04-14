@@ -57,3 +57,10 @@ async function parse(body) {
 module.exports = {
 	scrape
 };
+
+/*
+(async () => {
+	const stream = await scrape('https://www.rapidvideo.com/e/FU1U6HII73');
+	console.log(stream);
+})();
+*/

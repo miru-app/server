@@ -1,6 +1,6 @@
 module.exports = {
 	fouranime: require('./4anime.to'),
-	nineanimeru: require('./9anime.ru'),
+	nineanime: require('./9anime.to'),
 	//animedao: require('./animedao.com'),      // BROKEN UNTIL FURTHER NOTICE
 	animefever: require('./animefever.tv'),
 	animefreak: require('./animefreak.tv'),

@@ -2,7 +2,7 @@
 const got = require('got');
 
 // RegEx to find the required parts
-const ENCODED_SIGNATURE_REGEX = /<p (?:id=".*"|style="")>(.*)<\/p>/; // Doing this allows us to skip needing to use RegEx to find the AAEncoded JavaScript, decode it, and then use RegEx 2 more times to find this same value. This saves quite a bit of time. However this relies on a static HTML structure which may change
+const ENCODED_SIGNATURE_REGEX = /<p (?:id=".*"|style="") (?:style=""|id=".*")>(.*)<\/p>/; // Doing this allows us to skip needing to use RegEx to find the AAEncoded JavaScript, decode it, and then use RegEx 2 more times to find this same value. This saves quite a bit of time. However this relies on a static HTML structure which may change
 const SEED_1_REGEX = /\(_0x30725e,(.*)\),_1x4bfb36\)/;
 const SEED_2_REGEX = /_1x4bfb36=(.*?);/;
 
@@ -26,6 +26,9 @@ function parse(body) {
 	const SEED_2_REGEX_DATA = SEED_2_REGEX.exec(body);
 
 	if (!ENCODED_SIGNATURE_REGEX_DATA || !SEED_1_REGEX_DATA || !SEED_2_REGEX_DATA) {
+		if (!ENCODED_SIGNATURE_REGEX_DATA) console.log('[ERROR] Failed to find Encoded Signature!');
+		if (!SEED_1_REGEX_DATA) console.log('[ERROR] Failed to find Seed A!');
+		if (!SEED_2_REGEX_DATA) console.log('[ERROR] Failed to find Seed B!');
 		return null;
 	}
 

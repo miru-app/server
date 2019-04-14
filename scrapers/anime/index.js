@@ -49,17 +49,17 @@ async function getStreams(kitsuID, episodeNumber=1) {
 
 module.exports = getStreams; // Export the function
 
-/*
 // Tesing
 (async () => {
+	/*
 	console.time('Scrape Time');
 	const streams = await getStreams(41024, 1);
 	console.timeEnd('Scrape Time');
 	console.log(`Scrapers: ${Object.keys(scrapers).length}`);
 	console.log(`Total streams: ${streams.length}`);
 	console.log(streams);
+	*/
 })();
-*/
 
 // Combine arrays together
 function mergeArrays(...arrays) {
