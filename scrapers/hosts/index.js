@@ -5,5 +5,6 @@ module.exports = {
 	MP4Upload: require('./mp4upload'),
 	YourUpload: require('./yourupload'),
 	XStreamCDN: require('./xstreamcdn'),
-	Vev: require('./vev')
+	Vev: require('./vev'),
+	PrettyFast: require('./prettyfast'),
 };

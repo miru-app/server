@@ -124,7 +124,9 @@ async function getEpisodeStreams(link, episodeNumber) {
 		_: servers_
 	});
 
-	const response = await got(`${SERVERS_AJAX}/${animeId}?${query}`, {
+	const episodeUrl = `${SERVERS_AJAX}/${animeId}?${query}`;
+
+	const response = await got(episodeUrl, {
 		json: true
 	});
 	const html = response.body.html;
@@ -224,14 +226,11 @@ async function getEpisodeStreams(link, episodeNumber) {
 							.then(rapidvideo => {
 								if (rapidvideo) {
 									for (const stream of rapidvideo) {
-										streams.push({
-											provider: '9A',
-											provider_full: '9anime',
+										streams.push(Object.assign({
 											file_host: 'RapidVideo',
 											file: stream.source,
 											quality: stream.quality,
-											dubbed
-										});
+										}, metadataBase));
 									}
 								}
 
@@ -244,14 +243,11 @@ async function getEpisodeStreams(link, episodeNumber) {
 								if (streamango) {
 									async.each(streamango, (stream, cb) => {
 										got.head(stream.source.replace('//', '')).then(response => {
-											streams.push({
-												provider: '9A',
-												provider_full: '9anime',
+											streams.push(Object.assign({
 												file_host: 'StreaMango',
 												file: response.url,
 												quality: stream.quality,
-												dubbed
-											});
+											}, metadataBase));
 
 											cb();
 										});
@@ -262,8 +258,21 @@ async function getEpisodeStreams(link, episodeNumber) {
 							});
 						break;
 					case 'mcloud.to': // This one was just a pain
-					case 'prettyfast.to': // I...can't figure this one out
 						callback();
+						break;
+					case 'prettyfast.to':
+						hostScrapers.PrettyFast.scrape(embedURL, episodeUrl)
+							.then(prettyfast => {
+								if (prettyfast) {
+									streams.push(Object.assign({
+										file_host: 'F5',
+										file: prettyfast,
+										m3u8: true,
+									}, metadataBase));
+								}
+
+								callback();
+							});
 						break;
 					default:
 						console.log(domain);
