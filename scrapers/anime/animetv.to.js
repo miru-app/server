@@ -8,8 +8,6 @@ const URL_BASE = 'https://animetv.to';
 const SEARCH_URL = `${URL_BASE}/search?keyword`;
 const WATCH_URL = `${URL_BASE}/watch`;
 
-const GET_SLUG_REGEX = /\/anime\/(.*)\.html/i;
-const HAS_DUB_REGEX = /\(DUB\)/i;
 const STREAM_LINK_REGEX = /stream_link = "(.*?)"/;
 //const STREAM_LINK2_REGEX = /stream_link_2 = "(.*?)"/; // Seems unused on the website?
 //const STREAM_VIDCDN_REGEX = /stream_vidcdn = "(.*?)"/;
@@ -17,26 +15,19 @@ const STREAM_LINK_REGEX = /stream_link = "(.*?)"/;
 async function scrape(kitsuDetails, episodeNumber=1) {
 	let streams = [];
 
-	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
-	const titleENGUS = kitsuDetails.attributes.titles.en_us;
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.jp;
-	const title = (titleENGJPN || titleENGUS || titleENG || titleJPN);
-	const titleEncoded = encodeURIComponent(title.toLowerCase());
+	const title = kitsuDetails.attributes.canonicalTitle.toLowerCase();
+	const titleEncoded = encodeURIComponent(title);
 
-	const response = await got(`${SEARCH_URL}=${titleEncoded}`);
+	const response = await got(`${SEARCH_URL}=${titleEncoded}`, {
+		json: true,
+		headers: {
+			'X-Requested-With': 'XMLHttpRequest'
+		}
+	});
 	const body = response.body;
-	const dom = new JSDOM(body);
 
-	const searchResults = [...dom.window.document.querySelectorAll('ul.items li a')]
-		.map(element => ({
-			title: element.getAttribute('title'),
-			slug: GET_SLUG_REGEX.exec(element.href)[1],
-			dubbed: HAS_DUB_REGEX.test(element.getAttribute('title'))
-		}));
-
-	const subbed = searchResults.find(anime => (anime.title.includes(title) && !anime.dubbed));
-	const dubbed = searchResults.find(anime => (anime.title.includes(title) && anime.dubbed));
+	const subbed = body.find(({name}) => name.toLowerCase() === title);
+	const dubbed = body.find(({name}) => name.toLowerCase() === `${title} (dub)`);
 
 	if (!subbed && !dubbed) {
 		return null;
@@ -67,7 +58,7 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 async function getEpisodeStreams(link, episodeNumber) {
 	const streams = [];
 
-	const response = await got(`${WATCH_URL}/${link.slug}-episode-${episodeNumber}.html`);
+	const response = await got(`${WATCH_URL}/${link.alias}-episode-${episodeNumber}.html`);
 	const body = response.body;
 	const dom = new JSDOM(body);
 
@@ -81,7 +72,7 @@ async function getEpisodeStreams(link, episodeNumber) {
 			const playerType = element.classList[1];
 			const obj = {
 				playerType: playerType,
-				dubbed: link.dubbed
+				dubbed: link.name.endsWith('(Dub)')
 			};
 
 			switch (playerType) {
@@ -293,17 +284,12 @@ function mergeArrays(...arrays) {
 
 /*
 (async () => {
-	console.time('Scrape Time');
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			titles: {
-				//en: 'That Time I Got Reincarnated as a Slime',
-				en_jp: 'Kobayashi-san Chi no Maid Dragon',
-			}
+			canonicalTitle: 'Tensei shitara Slime Datta Ken'
 		}
-	}, 1);
-	console.timeEnd('Scrape Time');
-	console.log(`Streams: ${streams.length}`);
+	}, 14);
+
 	console.log(streams);
 })();
 */

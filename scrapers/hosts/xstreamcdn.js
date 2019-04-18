@@ -7,16 +7,20 @@ async function scrape(embedURL) {
 	const id = embedURL.split('/').pop();
 
 	const response = await got.post(`https://xstreamcdn.com/api/source/${id}`, {
+		throwHttpErrors: false,
 		body: 'r=&d=xstreamcdn.com'
 	});
 	const body = JSON.parse(response.body);
-
 	const qualities = body.data;
 
 	return new Promise(resolve => {
 		async.each(qualities, (quality, callback) => {
 			const {file, label} = quality;
-			got.head(file).then(head => {
+			got.head(file, {throwHttpErrors: false}).then(head => {
+
+				if (head.statusCode !== 200) {
+					return callback();
+				}
 
 				streams.push({
 					file: head.url,
@@ -32,8 +36,10 @@ async function scrape(embedURL) {
 }
 
 /*
+// https://xstreamcdn.com/v/eno8pqer0v1
+// https://xstreamcdn.com/v/1x9qyz2mxo4
 (async () => {
-	const stream = await scrape('https://xstreamcdn.com/v/p6og2q-8x9j');
+	const stream = await scrape('https://xstreamcdn.com/v/1x9qyz2mxo4');
 	console.log(stream);
 })();
 */

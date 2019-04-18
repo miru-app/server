@@ -1,10 +1,10 @@
 const got = require('got');
 const async = require('async');
-const { JSDOM } = require('jsdom');
+const cheerio = require('cheerio');
 const hostScrapers = require('../hosts');
 
 const URL_BASE = 'https://animesimple.com';
-const SEARCH_URL = `${URL_BASE}/search`;
+const SEARCH_URL = `${URL_BASE}/request`;
 
 const EMBED_REGEX = /var json = (.*);/gm;
 
@@ -16,30 +16,24 @@ const OPTIONS = {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	const streams = [];
 
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleJPN = kitsuDetails.attributes.titles.en_jp;
-	const title = (titleJPN || titleENG).toLowerCase();
+	const title = kitsuDetails.attributes.canonicalTitle.toLowerCase();
 	const titleEncoded = encodeURIComponent(title);
 
-	let response = await got(`${SEARCH_URL}?q=${titleEncoded}`, OPTIONS);
+	let response = await got(`${SEARCH_URL}?livequery=${titleEncoded}`, {
+		json: true
+	});
 	let body = response.body;
-	let dom = new JSDOM(body);
 
-	const searchResults = [...dom.window.document.querySelectorAll('h4.media-heading a')]
-		.map(el => ({
-			title: el.innerHTML,
-			link: el.href
-		}));
-
-	const anime = searchResults.find(anime => (anime.title.includes(titleENG) || anime.title.includes(titleJPN)));
-
-	response = await got(anime.link, OPTIONS);
+	const {suggestions} = body;
+	const anime = suggestions.find(({value}) => value.toLowerCase() === title);
+	
+	response = await got(anime.data, OPTIONS);
 	body = response.body;
-	dom = new JSDOM(body);
+	const $ = cheerio.load(body);
 
-	const episodeElement = dom.window.document.getElementById(`ep-${episodeNumber}`);
+	const episodeElement = $(`#ep-${episodeNumber}`);
 
-	response = await got(episodeElement.href, OPTIONS);
+	response = await got(episodeElement.attr('href'), OPTIONS);
 	body = response.body;
 
 	const embedArrayData = EMBED_REGEX.exec(body);
@@ -58,8 +52,7 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 									provider_full: 'Anime Simple',
 									file_host: 'mp4upload',
 									file: mp4upload,
-									dubbed: dubbed,
-									subbed: !dubbed
+									dubbed,
 								});
 							}
 
@@ -84,10 +77,7 @@ module.exports = scrape;
 (async () => {
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			titles: {
-				en: 'That Time I Got Reincarnated as a Slime',
-				en_jp: 'Tensei shitara Slime Datta Ken'
-			}
+			canonicalTitle: 'Tensei shitara Slime Datta Ken'
 		}
 	}, 14);
 
