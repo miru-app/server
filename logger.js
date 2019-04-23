@@ -2,9 +2,8 @@ const fs = require('fs-extra');
 require('colors');
 
 class Logger {
-	constructor(root) {
-		this.times = 0;
-		fs.ensureDirSync(`${this.root}/logs`);
+	constructor(root = '') {
+		fs.ensureDirSync(`${root}/logs`);
 
 		this.root = root;
 		this.streams = {
@@ -15,9 +14,9 @@ class Logger {
 			info: fs.createWriteStream(`${this.root}/logs/info.log`)
 		};
 	}
+	
 
 	success(input) {
-		this.times++;
 		const time = new Date();
 		input = `[${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}] [SUCCESS]: ${input}`;
 		this.streams.success.write(`${input}\n`);
@@ -26,7 +25,6 @@ class Logger {
 	}
 
 	error(input) {
-		this.times++;
 		const time = new Date();
 		input = `[${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}] [ERROR]: ${input}`;
 		this.streams.error.write(`${input}\n`);
@@ -35,7 +33,6 @@ class Logger {
 	}
 
 	warn(input) {
-		this.times++;
 		const time = new Date();
 		input = `[${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}] [WARN]: ${input}`;
 		this.streams.warn.write(`${input}\n`);
@@ -44,7 +41,6 @@ class Logger {
 	}
 
 	info(input) {
-		this.times++;
 		const time = new Date();
 		input = `[${time.getHours()}:${time.getMinutes()}:${time.getSeconds()}] [INFO]: ${input}`;
 		this.streams.info.write(`${input}\n`);
