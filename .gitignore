@@ -60,4 +60,5 @@ typings/
 # custom
 config.json
 client.js
+logs
 scrapers/anime/9anime.ru.js

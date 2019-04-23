@@ -3,6 +3,7 @@
         "port": 8080
     },
     "mongo_uri": "mongodb://localhost:27017",
-    "mongo_database_name": "db_name",
+    "mongo_db": "db_name",
+    "mongo_collection": "collection_name",
     "signature_secret": "secret"
 }

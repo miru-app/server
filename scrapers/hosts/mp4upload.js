@@ -15,6 +15,10 @@ async function scrape(embedURL) {
 	const variables = body.match(REGEX);
 	const parts = REGEX.exec(variables);
 
+	if (!parts) {
+		return null;
+	}
+
 	return `https://${parts[1]}.mp4upload.com:${parts[3]}/d/${parts[2]}/video.mp4`;
 }
 

@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const {signature_secret} = require('../config');
+const responseCodes = require('../response_codes');
 
 function validateSignature(request, response, next) {
 	if (request.method !== 'POST') {
@@ -13,7 +14,8 @@ function validateSignature(request, response, next) {
 	if (hmac !== signature) {
 		return response.status(400).json({
 			error: true,
-			message: 'Failed to validate POST data'
+			response_code: 0x1,
+			message: responseCodes[0x1]
 		});
 	}
 

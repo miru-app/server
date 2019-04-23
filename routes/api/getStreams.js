@@ -1,5 +1,10 @@
 const router = require('express').Router();
 const animeScraper = require('../../scrapers/anime');
+const {mongo_collection} = require('../../config');
+const db = require('../../db');
+const responseCodes = require('../../response_codes');
+
+const scrapingArray = [];
 
 router.post('/api/getStreams', async (request, response) => {
 	if (
@@ -12,9 +17,48 @@ router.post('/api/getStreams', async (request, response) => {
 	) {
 		return response.status(400).json({
 			error: true,
-			message: 'Malformed POST data'
+			response_code: 0x2,
+			message: responseCodes[0x2]
 		});
 	}
+
+	const key = `${request.body.id}:${request.body.episode}`;
+
+	const beingScraped = scrapingArray.includes(key);
+
+	if (beingScraped) {
+		return response.status(200).json({
+			warning: true,
+			response_code: 0x1,
+			retry_time: 2000
+		});
+	}
+
+	const collection = db.get().collection(mongo_collection);
+	
+	collection.findOne({key})
+		.then(async (streams, error) => {
+			if (!streams) {
+				scrapingArray.push(key);
+
+				streams = await animeScraper(request.body.id, request.body.episode);
+
+				await collection.insertOne({
+					key,
+					streams
+				});
+
+				scrapingArray.splice(scrapingArray.indexOf(key), 1);
+			} else {
+				streams = streams.streams;
+			}
+			
+			return response.status(200).json({
+				error: false,
+				data: streams || []
+			});
+		});
+	
 
 	/*
 		[TODO]
@@ -28,12 +72,6 @@ router.post('/api/getStreams', async (request, response) => {
 			  but is scraping them, and the client should then wait X amount of time and then request again
 			  (looping until either a timeout or error from the server?)
 	*/
-	const streams = await animeScraper(request.body.id, request.body.episode);
-
-	return response.status(200).json({
-		error: false,
-		data: streams
-	});
 });
 
 // export the router

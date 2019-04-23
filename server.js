@@ -1,6 +1,7 @@
 // imports
 const express = require('express');
 const morgan = require('morgan');
+const db = require('./db');
 const middleware = require('./middleware');
 const logger = require('./logger');
 const config = require('./config');
@@ -30,12 +31,13 @@ app.use(ROUTES.API.getStreams);
 
 // 4 parameters required to read the error, cant help the eslint error
 app.use((error, request, response, next) => { // eslint-disable-line no-unused-vars
-	logger.log('warn', error.stack);
+	logger.error(error.stack);
 	return response.status(500).send('Something broke!');
 });
 
 // startup
-app.listen(config.http.port, () => {
-	logger.log('debug', `started the server on port: ${config.http.port}`);
-	console.log(`started the server on port: ${new String(config.http.port).green}`);
+db.connect(() => {
+	app.listen(config.http.port, () => {
+		logger.success(`started the server on port: ${config.http.port}`);
+	});
 });

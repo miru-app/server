@@ -3,6 +3,8 @@ const async = require('async'); // asynchronous utils
 const { JSDOM } = require('jsdom');
 
 async function scrape(embedURL) {
+	return null; // Disable rapidvideo cuz of premium user shit
+	
 	// Get the webpage
 	const response = await got(embedURL, {
 		throwHttpErrors: false, // Turns off throwing exceptions for non-2xx HTTP codes
