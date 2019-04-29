@@ -6,9 +6,10 @@ const WATCH_URL = `${URL_BASE}/watch`;
 const GET_STREAM_REGEX = /file:"(.*?)"/;
 
 async function scrape(kitsuDetails, episodeNumber=1) {
-	const slug = kitsuDetails.attributes.slug;
+	const {slug, showType} = kitsuDetails.attributes;
+	const slug2 = (showType === 'movie' ? 'movie' : `episode-${episodeNumber}`);
 
-	const response = await got(`${WATCH_URL}/${slug}/episode/episode-${episodeNumber}`);
+	const response = await got(`${WATCH_URL}/${slug}/episode/${slug2}`);
 	const body = response.body;
 
 	const stream = GET_STREAM_REGEX.exec(body);
@@ -31,7 +32,8 @@ module.exports = scrape;
 	console.time('Scrape Time');
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			slug: 'tensei-shitara-slime-datta-ken'
+			slug: 'spirited-away',
+			showType: 'movie'
 		}
 	}, 3);
 	console.timeEnd('Scrape Time');

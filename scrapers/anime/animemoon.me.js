@@ -1,3 +1,7 @@
+/*
+	Seems to be dead?
+*/
+
 const got = require('got');
 const url = require('url');
 const psl = require('psl');
@@ -15,16 +19,13 @@ const WATCH_PROXY_REGEX = /watchproxy\.php\?url=(.*)/;
 async function scrape(kitsuDetails, episodeNumber=1) {
 	let streams = [];
 
-	const titleENGUS = kitsuDetails.attributes.titles.en_us;
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
-	const titleJPN = kitsuDetails.attributes.titles.jp;
+	const {en_us, en, en_jp, jp} = kitsuDetails.attributes.titles;
+	const title = (en_us || en || en_jp || jp).toLowerCase();
 
-	const title = (titleENGJPN || titleENG || titleENGUS || titleJPN).toLowerCase();
 	const titleEncoded = encodeURIComponent(title);
 
-	const TITLE_JPN_REGEX = new RegExp(titleJPN, 'i');
-	const TITLE_ENG_REGEX = new RegExp(titleENG, 'i');
+	const TITLE_JPN_REGEX = new RegExp(jp, 'i');
+	const TITLE_ENG_REGEX = new RegExp(en, 'i');
 
 	const response = await got(`${SEARCH_URL}?search=${titleEncoded}`);
 	const body = response.body;

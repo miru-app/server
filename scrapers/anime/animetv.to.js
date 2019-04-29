@@ -13,6 +13,8 @@ const STREAM_LINK_REGEX = /stream_link = "(.*?)"/;
 //const STREAM_VIDCDN_REGEX = /stream_vidcdn = "(.*?)"/;
 
 async function scrape(kitsuDetails, episodeNumber=1) {
+	if (kitsuDetails.attributes.showType === 'movie') episodeNumber = 1;
+	
 	let streams = [];
 
 	const title = kitsuDetails.attributes.canonicalTitle.toLowerCase();
@@ -284,12 +286,14 @@ function mergeArrays(...arrays) {
 
 /*
 (async () => {
+	console.time('Scrape Time');
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			canonicalTitle: 'Tensei shitara Slime Datta Ken'
+			canonicalTitle: 'Spirited Away',
+			showType: 'movie'
 		}
-	}, 14);
-
+	}, 1);
+	console.timeEnd('Scrape Time');
 	console.log(streams);
 })();
 */

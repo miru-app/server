@@ -53,7 +53,7 @@ module.exports = getStreams; // Export the function
 // Tesing
 (async () => {
 	console.time('Scrape Time');
-	const streams = await getStreams(41024, 1);
+	const streams = await getStreams(176, 1);
 	console.timeEnd('Scrape Time');
 	console.log(`Scrapers: ${Object.keys(scrapers).length}`);
 	console.log(`Total streams: ${streams.length}`);

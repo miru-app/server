@@ -14,9 +14,13 @@ const OPTIONS = {
 };
 
 async function scrape(kitsuDetails, episodeNumber=1) {
+	if (kitsuDetails.attributes.showType === 'movie') episodeNumber = '';
+
 	const streams = [];
 
-	const title = kitsuDetails.attributes.canonicalTitle.toLowerCase();
+	const {en_jp, en_us, en, jp} = kitsuDetails.attributes.titles;
+	const title = (en_jp || en_us || en || jp).toLowerCase();
+
 	const titleEncoded = encodeURIComponent(title);
 
 	let response = await got(`${SEARCH_URL}?livequery=${titleEncoded}`, {
@@ -32,8 +36,9 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 	const $ = cheerio.load(body);
 
 	const episodeElement = $(`#ep-${episodeNumber}`);
+	const episodeUrl = episodeElement.attr('href');
 
-	response = await got(episodeElement.attr('href'), OPTIONS);
+	response = await got(episodeUrl, OPTIONS);
 	body = response.body;
 
 	const embedArrayData = EMBED_REGEX.exec(body);
@@ -60,6 +65,21 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 						});
 					break;
 				case 'trollvid':
+					hostScrapers.TrollVid.scrape(`https://trollvid.net/embed/${embed.id}`, episodeUrl)
+						.then(trollvid => {
+							if (trollvid) {
+								streams.push({
+									provider: 'AS',
+									provider_full: 'Anime Simple',
+									file_host: 'trollvid',
+									file: trollvid,
+									dubbed,
+								});
+							}
+
+							callback();
+						});
+					break;
 				default:
 					callback();
 					break;
@@ -75,12 +95,18 @@ module.exports = scrape;
 
 /*
 (async () => {
+	console.time('Scrape Time');
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			canonicalTitle: 'Tensei shitara Slime Datta Ken'
+			titles: {
+				en: 'Spirited Away',
+				en_jp: 'Sen to Chihiro no Kamikakushi',
+				ja_jp: '千と千尋の神隠し'
+			},
+			showType: 'movie'
 		}
-	}, 14);
-
+	}, 1);
+	console.timeEnd('Scrape Time');
 	console.log(streams);
 })();
 */

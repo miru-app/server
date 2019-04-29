@@ -7,4 +7,5 @@ module.exports = {
 	XStreamCDN: require('./xstreamcdn'),
 	Vev: require('./vev'),
 	PrettyFast: require('./prettyfast'),
+	TrollVid: require('./trollvid'),
 };

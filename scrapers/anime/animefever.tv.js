@@ -10,14 +10,20 @@ const OPTIONS = {
 };
 
 async function scrape(kitsuDetails, episodeNumber=1) {
+	const type = kitsuDetails.attributes.showType;
+
+	if (type === 'movie') {
+		return await scrapeMovie(kitsuDetails);
+	} else {
+		return await scrapeSeries(kitsuDetails, episodeNumber);
+	}
+}
+
+async function scrapeSeries(kitsuDetails, episodeNumber) {
 	episodeNumber--;
 
-	const titleENGUS = kitsuDetails.attributes.titles.en_us;
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
-	const titleJPN = kitsuDetails.attributes.titles.jp;
-
-	const title = (titleENGJPN || titleENG || titleENGUS || titleJPN);
+	const {en_jp, en, en_us, jp} = kitsuDetails.attributes.titles;
+	const title = (en_jp || en || en_us || jp);
 
 	let response = await got(`${SEARCH_URL}&search=${title}`, OPTIONS);
 	const searchResults = response.body.data;
@@ -41,6 +47,11 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 		m3u8: true,
 		subtitles_file: episodeDetails.subtitles[0].file
 	}];
+}
+
+async function scrapeMovie() {
+	// animefever doesn't seem to have movies
+	return null;
 }
 
 /*

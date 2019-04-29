@@ -42,11 +42,8 @@ function calculateMagic(_key, metadata) {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	let streams = [];
 
-	const titleENGUS = kitsuDetails.attributes.titles.en_us;
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
-	const titleJPN = kitsuDetails.attributes.titles.jp;
-	const title = (titleENGUS || titleENG || titleENGJPN || titleJPN);
+	const {en_us, en, en_jp, jp} = kitsuDetails.attributes.titles;
+	const title = (en_us || en || en_jp || jp);
 
 	const ts = Date.now();
 

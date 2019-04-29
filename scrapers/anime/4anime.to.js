@@ -11,6 +11,16 @@ const OPTIONS = {
 };
 
 async function scrape(kitsuDetails, episodeNumber=1) {
+	const type = kitsuDetails.attributes.showType;
+
+	if (type === 'movie') {
+		return await scrapeMovie(kitsuDetails);
+	} else {
+		return await scrapeSeries(kitsuDetails, episodeNumber);
+	}
+}
+
+async function scrapeSeries(kitsuDetails, episodeNumber=1) {
 	episodeNumber--; // Arrays start at 0
 
 	let response = await got(`${URL_BASE}/${kitsuDetails.attributes.slug}`, OPTIONS);
@@ -39,6 +49,11 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 		file_host: '4A',
 		file: SOURCE_DATA[1]
 	}];
+}
+
+async function scrapeMovie() {
+	// 4anime doesn't seem to have movies
+	return null;
 }
 
 /*

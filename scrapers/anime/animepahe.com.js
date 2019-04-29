@@ -20,13 +20,12 @@ const OPTIONS = {
 };
 
 async function scrape(kitsuDetails, episodeNumber=1) {
-	const streams = [];
+	if (kitsuDetails.attributes.showType === 'movie') episodeNumber = 1;
 
-	const titleENGUS = kitsuDetails.attributes.titles.en_us;
-	const titleENG = kitsuDetails.attributes.titles.en;
-	const titleENGJPN = kitsuDetails.attributes.titles.en_jp;
-	const titleJPN = kitsuDetails.attributes.titles.jp;
-	const title = (titleENGUS || titleENG || titleENGJPN || titleJPN);
+	const streams = [];	
+
+	const {en_jp, en_us, en, jp} = kitsuDetails.attributes.titles;
+	const title = (en_jp || en_us || en || jp);
 	const titleEncoded = encodeURIComponent(title);
 
 	let response = await got(`${SEARCH_URL_BASE}&q=${titleEncoded}`, OPTIONS);
@@ -37,7 +36,7 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 	}
 
 	const anime = searchResults.find(anime => {
-		return (anime.title.includes(titleENG) || anime.title.includes(titleJPN));
+		return (anime.title.includes(en_jp) || anime.title.includes(en_us) || anime.title.includes(en) || anime.title.includes(jp));
 	});
 
 	if (!anime) {
@@ -150,11 +149,13 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
 			titles: {
-				en: 'That Time I Got Reincarnated as a Slime',
-				en_jp: 'Tensei shitara Slime Datta Ken',
-			}
+				en: 'Spirited Away',
+				en_jp: 'Sen to Chihiro no Kamikakushi',
+				ja_jp: '千と千尋の神隠し'
+			},
+			showType: 'movie'
 		}
-	}, 3);
+	}, 1);
 	console.log(streams);
 })();
 */

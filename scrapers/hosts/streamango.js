@@ -37,6 +37,11 @@ async function scrape(url) {
 	const response = await got(url);
 	const body = response.body;
 
+	// Dirty check to see if the file exists
+	if (body.includes('We are unable to find the video you\'re looking for. There could be several reasons for this, for example it got removed by the owner.')) {
+		return null;
+	}
+
 	return parse(body);
 }
 

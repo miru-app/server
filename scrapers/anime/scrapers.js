@@ -6,11 +6,11 @@ module.exports = {
 	animefreak: require('./animefreak.tv'),
 	//animeheaven: require('./animeheaven.eu'), // SITE IS DEAD
 	//animehub: require('./animehub.ac'),       // BROKEN UNTIL FURTHER NOTICE
-	animemoon: require('./animemoon.me'),
+	//animemoon: require('./animemoon.me'),		// Seems to be dead? Not sure
 	animepahe: require('./animepahe.com'),
 	animesimple: require('./animesimple.com'),
 	animetv: require('./animetv.to'),
-	gogoanimes: require('./gogoanimes.co'),
+	//gogoanimes: require('./gogoanimes.co'), // Disabled for now because .co is down, and idk what other domains are official/legit
 	//masteranime: require('./masterani.me'), // RIP, you were a legend
 	twist: require('./twist.moe'),
 	watchcartoononline: require('./watchcartoononline.io'),

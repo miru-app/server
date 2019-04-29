@@ -1,5 +1,4 @@
 const got = require('got');
-const JSON5 = require('json5');
 
 const LANGUAGE = 'english'; // I dunno if it can be other languages but here ya go anyway
 
@@ -10,8 +9,7 @@ const URL_BASE = 'https://www.watchcartoononline.io';
 const ARRAY_REGEX = /\w{3} = (\[.*\])/;
 const SEED_REGEX = / - (\d*)\);/;
 const EMBED_REGEX = /src="(.*?)"/;
-const SOURCES_REGEX = /sources: \[((?:\s|.)*?)\]/mg;
-const SOURCE_REGEX = /this.src\((.*)\);/;
+const SOURCES_REGEX = /getvidlink\.php\?(.*?)"/;
 
 // Options for 'got'
 const OPTIONS = {
@@ -25,12 +23,17 @@ function base64Decode(base64) {
 async function scrape(kitsuDetails, episodeNumber=1) {
 	const streams = [];
 
-	const URL_EPISODE_BASE = `${URL_BASE}/${kitsuDetails.attributes.slug}-episode-${episodeNumber}-${LANGUAGE}`;
-	const URL_SUBBED = `${URL_EPISODE_BASE}-subbed`;
-	//const URL_DUBBED = `${URL_EPISODE_BASE}-dubbed`;
+	let URL_EPISODE_BASE;
+	let PAGE_URL;
+	if (kitsuDetails.attributes.showType === 'movie') {
+		PAGE_URL = `${URL_BASE}/${kitsuDetails.attributes.canonicalTitle.replace(' ', '-').toLowerCase()}`;
+	} else {
+		URL_EPISODE_BASE = `${URL_BASE}/${kitsuDetails.attributes.slug}-episode-${episodeNumber}-${LANGUAGE}`;
+		PAGE_URL = `${URL_EPISODE_BASE}-subbed`;
+	}
 
 	// Request the first page
-	let response = await got(URL_SUBBED, OPTIONS);
+	let response = await got(PAGE_URL, OPTIONS);
 	let body = response.body;
 
 	// Find the encoded encoded chunk array
@@ -59,27 +62,39 @@ async function scrape(kitsuDetails, episodeNumber=1) {
 	response = await got(IFRAME_URL, OPTIONS);
 	body = response.body;
 
-	// This page keeps the sources neatly stored in JavaScript
-	let sourcesData = SOURCES_REGEX.exec(body);
-	let sources;
-
-	if (sourcesData) {
-		sources = JSON5.parse(`[${sourcesData[1]}]`); // Using JSON5 to parse this lazy-JSON string
-	} else {
-		// the episode probably doesn't have multiple qualities, so lets just try to pull the only source
-		sourcesData = SOURCE_REGEX.exec(body);
-		if (sourcesData) {
-			sources = JSON5.parse(sourcesData[1]); // Using JSON5 to parse this lazy-JSON string
-		}
+	const GET_SOURCES_URL_DATA = SOURCES_REGEX.exec(body);
+	if (!GET_SOURCES_URL_DATA) {
+		return null;
 	}
 
-	for (const source of sources) {
+	const getSourcesUrl = `${URL_BASE}/inc/embed/getvidlink.php?${GET_SOURCES_URL_DATA[1]}`;
+
+
+	response = await got(getSourcesUrl, {
+		json: true,
+		headers: {
+			'X-Requested-With': 'XMLHttpRequest'
+		}
+	});
+	const sources = response.body;
+
+	const {enc: sd, hd, server} = sources;
+
+	if (sd && sd.trim() !== '') {
 		streams.push({
 			provider: 'WCO',
 			provider_full: 'Watch Cartoons Online',
 			file_host: 'WCO',
-			file: source.src,
-			subbed: true
+			file: `${server}/getvid?evid=${sd}`
+		});
+	}
+
+	if (hd && hd.trim() !== '') {
+		streams.push({
+			provider: 'WCO',
+			provider_full: 'Watch Cartoons Online',
+			file_host: 'WCO',
+			file: `${server}/getvid?evid=${hd}`
 		});
 	}
 
@@ -90,12 +105,14 @@ module.exports = scrape;
 
 /*
 (async () => {
+	console.time('Scrape Time');
 	const streams = await scrape({ // Fake Kitsu response
 		attributes: {
-			slug: 'tensei-shitara-slime-datta-ken'
+			canonicalTitle: 'Spirited Away',
+			showType: 'movie'
 		}
-	}, 3);
-
+	}, 1);
+	console.timeEnd('Scrape Time');
 	console.log(streams);
 })();
 */
