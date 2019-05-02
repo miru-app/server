@@ -1,6 +1,6 @@
 module.exports = {
 	fouranime: require('./4anime.to'),
-	nineanime: require('./9anime.to'),
+	//nineanime: require('./9anime.to'), // They seem to be testing reCaptcha. Disabled for now
 	//animedao: require('./animedao.com'),      // BROKEN UNTIL FURTHER NOTICE
 	animefever: require('./animefever.tv'),
 	animefreak: require('./animefreak.tv'),

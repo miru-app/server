@@ -1,10 +1,12 @@
 // imports
+const cron = require('node-cron');
 const express = require('express');
 const morgan = require('morgan');
 const db = require('./db');
 const middleware = require('./middleware');
+const {validate_streams} = require('./tasks');
 const logger = require('./logger');
-const config = require('./config');
+const {cron_schedule, http: {port}} = require('./config');
 
 // setup console colors
 require('colors');
@@ -17,7 +19,6 @@ app.use(express.urlencoded({
 	extended: true
 }));
 app.use('/api/*', middleware.validateSignature);
-//app.use(middleware.mongo);
 
 // routes setup
 const ROUTES = {
@@ -37,7 +38,10 @@ app.use((error, request, response, next) => { // eslint-disable-line no-unused-v
 
 // startup
 db.connect(() => {
-	app.listen(config.http.port, () => {
-		logger.success(`started the server on port: ${config.http.port}`);
+	validate_streams();
+	cron.schedule(cron_schedule, validate_streams);
+
+	app.listen(port, () => {
+		logger.success(`started the server on port: ${port}`);
 	});
 });

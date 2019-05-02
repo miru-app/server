@@ -2,6 +2,7 @@ const MongoClient = require('mongodb').MongoClient;
 const {mongo_uri, mongo_db} = require('./config');
 const logger = require('./logger');
 let mongodb;
+let mongoclient;
 
 function connect(callback) {
 	MongoClient.connect(mongo_uri, (error, client) => {
@@ -9,7 +10,8 @@ function connect(callback) {
 			logger.error(error);
 		}
 
-		mongodb = client.db(mongo_db);
+		mongoclient = client;
+		mongodb = mongoclient.db(mongo_db);
 
 		callback();
 	});
@@ -19,7 +21,7 @@ function get() {
 }
 
 function close() {
-	mongodb.close();
+	mongoclient.close();
 }
 
 module.exports = {

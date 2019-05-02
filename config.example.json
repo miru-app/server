@@ -2,6 +2,7 @@
     "http": {
         "port": 8080
     },
+    "cron_schedule": "* * * * *",
     "mongo_uri": "mongodb://localhost:27017",
     "mongo_db": "db_name",
     "mongo_collection": "collection_name",

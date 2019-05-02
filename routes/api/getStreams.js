@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const logger = require('../../logger');
 const animeScraper = require('../../scrapers/anime');
 const {mongo_collection} = require('../../config');
 const db = require('../../db');
@@ -38,12 +39,18 @@ router.post('/api/getStreams', async (request, response) => {
 	
 	collection.findOne({key})
 		.then(async (streams, error) => {
+
+			if (error) {
+				logger.error(error);
+			}
+
 			if (!streams) {
 				scrapingArray.push(key);
 
 				streams = await animeScraper(request.body.id, request.body.episode);
 
 				await collection.insertOne({
+					createdAt: Date.now(),
 					key,
 					streams
 				});
